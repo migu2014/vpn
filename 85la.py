@@ -1,3 +1,4 @@
+# coding=utf-8
 import os
 import requests
 from bs4 import BeautifulSoup
@@ -26,19 +27,20 @@ if response.status_code == 200:
         response = requests.get(a.get('href'), headers=headers)
         if response.status_code == 200:
             soup = BeautifulSoup(response.text, 'html.parser')
-            items = soup.select('strong')
+            items = soup.select('div.document > div.section > p')
+            v2ray = False
             os.chdir('/media/AiCard_01/hwf_download/mobile/document/vpn/')
             for item in items:
                 print(item.text)
-                if item.text.find('Clash内核：') != -1:
-                    yaml = item.text.replace('Clash内核：', '')
+                if item.text.endswith('.yaml'):
+                    yaml = item.text
                     os.system('rm -rf 85la.yaml')
                     os.system('wget ' + yaml + ' -O 85la.yaml')
                     continue
-                if item.text.find('订阅地址：') != -1 and item.text.endswith('.txt'):
-                    txt = item.text.replace('订阅地址：', '')
+                if not v2ray and item.text.endswith('.txt'):
                     os.system('rm -rf 85la.txt')
                     os.system('wget ' + txt + ' -O 85la.txt')
+                    v2ray = True
                     continue
             os.system('git add .')
             os.system('git commit -m \'m\'')
