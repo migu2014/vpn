@@ -29,6 +29,7 @@ if response.status_code == 200:
             items = soup.select('strong')
             os.chdir('/media/AiCard_01/hwf_download/mobile/document/vpn/')
             for item in items:
+                print(item.text)
                 if item.text.find('Clash内核：') != -1:
                     yaml = item.text.replace('Clash内核：', '')
                     os.system('rm -rf 85la.yaml')
