@@ -27,7 +27,7 @@ if response.status_code == 200:
         response = requests.get(a.get('href'), headers=headers)
         if response.status_code == 200:
             soup = BeautifulSoup(response.text, 'html.parser')
-            items = soup.select('div.document > div.section > p')
+            items = soup.select('strong')
             v2ray = False
             os.chdir('/media/AiCard_01/hwf_download/mobile/document/vpn/')
             for item in items:
@@ -38,6 +38,7 @@ if response.status_code == 200:
                     os.system('wget ' + yaml + ' -O 85la.yaml')
                     continue
                 if not v2ray and item.text.endswith('.txt'):
+                    txt = item.text
                     os.system('rm -rf 85la.txt')
                     os.system('wget ' + txt + ' -O 85la.txt')
                     v2ray = True
@@ -47,5 +48,3 @@ if response.status_code == 200:
             os.system('git push origin main')
     else:
         print('未找到指定的元素')
-else:
-    print('请求失败，状态码:', response.status_code)
