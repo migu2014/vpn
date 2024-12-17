@@ -1,4 +1,3 @@
-# coding=utf-8
 import os
 import requests
 from bs4 import BeautifulSoup
@@ -21,30 +20,59 @@ if response.status_code == 200:
     
     # 解析网页内容
     soup = BeautifulSoup(response.text, 'html.parser')
+
     a = soup.select_one('h3.ceo-text-truncate > a.ceo-h4')
     if a:
         print(a.get('href'))  # 打印链接
         response = requests.get(a.get('href'), headers=headers)
         if response.status_code == 200:
             soup = BeautifulSoup(response.text, 'html.parser')
-            items = soup.select('strong')
-            v2ray = False
-            os.chdir('/media/AiCard_01/hwf_download/mobile/document/vpn/')
-            for item in items:
-                print(item.text)
-                if item.text.endswith('.yaml'):
-                    yaml = item.text
-                    os.system('rm -rf 85la.yaml')
-                    os.system('wget ' + yaml + ' -O 85la.yaml')
-                    continue
-                if not v2ray and item.text.endswith('.txt'):
-                    txt = item.text
-                    os.system('rm -rf 85la.txt')
-                    os.system('wget ' + txt + ' -O 85la.txt')
-                    v2ray = True
-                    continue
-            os.system('git add .')
-            os.system('git commit -m \'m\'')
-            os.system('git push origin main')
+            text = soup.find_all(string=True)
+
+            blacklist = [
+                '[document]',
+                'noscript',
+                'header',
+                'html',
+                'meta',
+                'head', 
+                'input',
+                'script',
+                'style'
+                # there may be more elements you don't want, such as "style", etc.
+            ]
+
+            for t in text:
+                if t.parent.name not in blacklist:
+                    # output += '{} '.format(t)
+                    line = t.text.replace(' ', '').replace('\t', '').replace('\n', '')
+                    if line.startswith('https') and line.endswith('yaml'):
+                        print(line)
+                        os.chdir('/media/AiCard_01/hwf_download/mobile/document/vpn/')
+                        os.system('rm -rf 85la.yaml')
+                        os.system('wget ' + line + ' -O 85la.yaml')
+                        os.system('git add .')
+                        os.system('git commit -m \'m\'')
+                        os.system('git push origin main')
+                        break
+
+
+            # os.chdir('/media/AiCard_01/hwf_download/mobile/document/vpn/')
+            # for item in items:
+            #     if item.text.find('Clash内核：') != -1:
+            #         yaml = item.text.replace('Clash内核：', '')
+            #         os.system('rm -rf 85la.yaml')
+            #         os.system('wget ' + yaml + ' -O 85la.yaml')
+            #         continue
+            #     if item.text.find('订阅地址：') != -1 and item.text.endswith('.txt'):
+            #         txt = item.text.replace('订阅地址：', '')
+            #         os.system('rm -rf 85la.txt')
+            #         os.system('wget ' + txt + ' -O 85la.txt')
+            #         continue
+            # os.system('git add .')
+            # os.system('git commit -m \'m\'')
+            # os.system('git push origin main')
     else:
         print('未找到指定的元素')
+else:
+    print('请求失败，状态码:', response.status_code)
